@@ -26,8 +26,10 @@
     "@types/twit": "^2.2.22",
     "io-ts": "^2.0.0",
     "pg": "^7.11.0",
+    "reflect-metadata": "^0.1.13",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.7",
-    "twit": "^2.2.11"
+    "twit": "^2.2.11",
+    "typeorm": "^0.2.18"
   }
 }
