@@ -10,7 +10,7 @@ export class FF {
   @Column("bigint", { name: "user_id" })
   userId!: string;
 
-  @Column("datetime", { name: "created_id" })
+  @Column("timestamptz", { name: "created_at" })
   createdAt!: Date;
 
   @OneToMany(_type => Friend, friend => friend.ff)
