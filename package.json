@@ -17,19 +17,23 @@
   },
   "homepage": "https://github.com/kgtkr/twitter-tools#readme",
   "devDependencies": {
+    "@types/date-fns": "^2.6.0",
+    "@types/lazy-value": "^2.0.0",
     "@types/node": "^12.6.2",
+    "@types/pg": "^7.4.14",
     "@types/request-promise-native": "^1.0.16",
+    "@types/twit": "^2.2.22",
     "typescript": "^3.5.3"
   },
   "dependencies": {
-    "@types/pg": "^7.4.14",
-    "@types/twit": "^2.2.22",
+    "@kgtkr/utils": "^1.1.0",
+    "date-fns": "^1.30.1",
+    "fp-ts": "^2.0.3",
     "io-ts": "^2.0.0",
+    "lazy-value": "^2.0.0",
     "pg": "^7.11.0",
-    "reflect-metadata": "^0.1.13",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.7",
-    "twit": "^2.2.11",
-    "typeorm": "^0.2.18"
+    "twit": "^2.2.11"
   }
 }

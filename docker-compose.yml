@@ -4,14 +4,21 @@ services:
   app:
     build: .
     restart: always
-    environment: []
+    environment:
+      PSQL_HOST: psql
+      PSQL_PORT: 5432
+      PSQL_DATABASE: postgres
+      PSQL_USER: postgres
+      PSQL_PASS: postgres
     #env_file: .env
     depends_on:
       - psql
     volumes:
-      - ./:/home/app
+      - ./data/app:/home/app
   psql:
     restart: always
     image: "postgres:10.5"
+    environment:
+      POSTGRES_PASSWORD: postgres
     volumes:
       - ./data/psql:/var/lib/postgresql/data

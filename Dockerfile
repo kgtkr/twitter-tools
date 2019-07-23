@@ -4,8 +4,11 @@ ENV HOME=/home/app
 
 WORKDIR $HOME
 
+COPY package.json $HOME/
+COPY package-lock.json $HOME/
+RUN npm i
+
 COPY . $HOME
 
-RUN npm i -g ts-node && \
-    npm i && \
-    npm run build
+RUN npm run build
+CMD ["npm", "start"]
