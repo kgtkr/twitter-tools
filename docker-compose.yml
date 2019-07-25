@@ -5,6 +5,7 @@ services:
     build: .
     restart: always
     environment:
+      APP_DIR: data
       PSQL_HOST: psql
       PSQL_PORT: 5432
       PSQL_DATABASE: postgres
@@ -14,7 +15,7 @@ services:
     depends_on:
       - psql
     volumes:
-      - ./data/app:/home/app
+      - ./data/app:/home/app/data
   psql:
     restart: always
     image: "postgres:10.5"
