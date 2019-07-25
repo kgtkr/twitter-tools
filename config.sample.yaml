@@ -1,7 +1,7 @@
 consumers:
   hoge: &cs_hoge
-    cs: xxx
-    ck: yyy
+    ck: xxx
+    cs: yyy
 tokens:
   foo: &tk_foo
     tk: aaa
