@@ -1,9 +1,7 @@
-import { psqlClient } from "../psql-client";
+import { psqlPool } from "../psql-pool";
 
 export async function migrate_1563177832055_init() {
-  const client = await psqlClient();
-
-  await client.query(`
+  await psqlPool().query(`
     CREATE TABLE ffs (
       id uuid NOT NULL,
       user_id bigint NOT NULL,
@@ -14,7 +12,7 @@ export async function migrate_1563177832055_init() {
     )
   `);
 
-  await client.query(`
+  await psqlPool().query(`
     CREATE TABLE followers (
       ff_id uuid NOT NULL,
       user_id bigint NOT NULL,
@@ -28,7 +26,7 @@ export async function migrate_1563177832055_init() {
     );
   `);
 
-  await client.query(`
+  await psqlPool().query(`
     CREATE TABLE friends (
       ff_id uuid NOT NULL,
       user_id bigint NOT NULL,

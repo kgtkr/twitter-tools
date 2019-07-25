@@ -23,6 +23,7 @@
     "@types/pg": "^7.4.14",
     "@types/request-promise-native": "^1.0.16",
     "@types/twit": "^2.2.22",
+    "@types/uuid": "^3.4.5",
     "typescript": "^3.5.3"
   },
   "dependencies": {
@@ -34,6 +35,7 @@
     "pg": "^7.11.0",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.7",
-    "twit": "^2.2.11"
+    "twit": "^2.2.11",
+    "uuid": "^3.3.2"
   }
 }
