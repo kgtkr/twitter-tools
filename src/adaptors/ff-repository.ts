@@ -1,10 +1,10 @@
 import { FFRepository as Port } from "../ports/ff-repository";
-import { taskEither, either, array, pipeable, option } from "fp-ts";
+import { taskEither, either, array, option } from "fp-ts";
 import { FF } from "../entities/ff";
 import { transaction, psqlPool } from "../psql-pool";
 import * as t from "io-ts";
 import { DateFromISOString } from "io-ts-types/lib/DateFromISOString";
-import { left, Either } from "fp-ts/lib/Either";
+import { Either } from "fp-ts/lib/Either";
 import { pipe } from "fp-ts/lib/pipeable";
 export class FFRepository implements Port {
   insert(ff: FF): taskEither.TaskEither<null, null> {

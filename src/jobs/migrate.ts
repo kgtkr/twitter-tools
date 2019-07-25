@@ -1,4 +1,4 @@
-import * as fs from "fs-promise";
+import * as fs from "fs-extra";
 import * as path from "path";
 import { env } from "../env";
 import { migrate } from "../migrate";
