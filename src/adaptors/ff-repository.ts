@@ -6,6 +6,7 @@ import * as t from "io-ts";
 import { DateFromISOString } from "io-ts-types/lib/DateFromISOString";
 import { Either } from "fp-ts/lib/Either";
 import { pipe } from "fp-ts/lib/pipeable";
+import { eitherUnwrap } from "../utils";
 export class FFRepository implements Port {
   insert(ff: FF): taskEither.TaskEither<null, null> {
     return async () => {
@@ -120,13 +121,5 @@ export class FFRepository implements Port {
         }))
       );
     };
-  }
-}
-
-function eitherUnwrap<L, R>(x: Either<L, R>): R {
-  if (either.isRight(x)) {
-    return x.right;
-  } else {
-    throw x.left;
   }
 }
