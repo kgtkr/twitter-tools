@@ -8,3 +8,9 @@ export function eitherUnwrap<L, R>(x: Either<L, R>): R {
     throw x.left;
   }
 }
+
+export function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => {
+    setTimeout(resolve, ms);
+  });
+}
