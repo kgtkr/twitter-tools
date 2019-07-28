@@ -42,12 +42,17 @@ export async function migrate_1563177832055_init() {
     `);
 
     await client.query(`
-      CREATE TABLE raw_statuses (
+      CREATE TYPE raw_type AS ENUM ('user', 'status');
+    `);
+
+    await client.query(`
+      CREATE TABLE raws (
+        type raw_type NOT NULL,
         id BIGINT NOT NULL,
         created_at TIMESTAMP WITH TIME ZONE NOT NULL,
         raw JSON NOT NULL,
         CONSTRAINT pk
-          PRIMARY KEY (id, created_at)
+          PRIMARY KEY (type, id, created_at)
       )
     `);
   });
