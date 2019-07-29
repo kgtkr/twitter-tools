@@ -23,7 +23,8 @@ export class Twitter {
   async fetchFollowers(userId: string): Promise<string[]> {
     const resType = t.type({ ids: t.array(t.string) });
     return await fetchAll(this.twit, "followers/ids", {
-      user_id: userId
+      user_id: userId,
+      count: 200
     })
       .then(x =>
         x
@@ -42,7 +43,8 @@ export class Twitter {
   async fetchFriends(userId: string): Promise<string[]> {
     const resType = t.type({ ids: t.array(t.string) });
     return await fetchAll(this.twit, "friends/ids", {
-      user_id: userId
+      user_id: userId,
+      count: 200
     })
       .then(x =>
         x
