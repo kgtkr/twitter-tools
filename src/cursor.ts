@@ -9,10 +9,10 @@ export async function fetchAll(
 ): Promise<unknown[]> {
   const resType = t.type({ next_cursor_str: t.string });
   const result: unknown[] = [];
-  let cursor: string | undefined = undefined;
+  let cursor = "-1";
 
   while (true) {
-    const res: Either<t.Errors, t.TypeOf<typeof resType>> = await twit
+    const res = await twit
       .get(path, { ...params, cursor })
       .then(x => x.data)
       .then(x => resType.decode(x));
