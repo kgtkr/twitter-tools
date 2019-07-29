@@ -1,4 +1,4 @@
-import { RawStatus } from "../entities/raw-status";
+import { Raw, RawType } from "../entities/raw";
 import { psqlPool } from "../psql-pool";
 import * as t from "io-ts";
 import { pipe } from "fp-ts/lib/pipeable";
@@ -6,11 +6,12 @@ import { array } from "fp-ts";
 import { eitherUnwrap } from "../utils";
 import { DateFromISOString } from "io-ts-types/lib/DateFromISOString";
 
-export class RawStatusRepository {
-  async insert(status: RawStatus): Promise<void> {
+export class RawRepository {
+  async insert(raw: Raw): Promise<void> {
     await psqlPool().query(
       `
-      INSERT INTO raw_statuses (
+      INSERT INTO raws (
+        type,
         id,
         created_at,
         raw
@@ -18,15 +19,17 @@ export class RawStatusRepository {
       VALUES (
         $1,
         $2,
-        $3
+        $3,
+        $4
       )
     `,
-      [status.id, status.createdAt, JSON.stringify(status.raw)]
+      [raw.type, raw.id, raw.createdAt, JSON.stringify(raw.raw)]
     );
   }
 
-  async findLatest(ids: string[]): Promise<RawStatus[]> {
+  async findLatest(type: RawType, ids: string[]): Promise<Raw[]> {
     const rowType = t.type({
+      type: t.union([t.literal("user"), t.literal("status")]),
       id: t.string,
       created_at: DateFromISOString,
       raw: t.unknown
@@ -35,21 +38,23 @@ export class RawStatusRepository {
     const res = await psqlPool().query(
       `
       SELECT
+        t1.type AS type,
         t1.id AS id,
         t1.created_at AS created_at,
         t1.raw AS raw
-      FROM raw_statuses AS t1
+      FROM raws AS t1
       WHERE
-        t1.id = ANY($1::int[]) AND
+        t1.type = $1 AND
+        t1.id = ANY($2::int[]) AND
         NOT EXISTS (
           SELECT *
-          FROM raw_statuses AS t2
+          FROM raws AS t2
           WHERE
             t1.id = t2.id AND
             t1.created_at < t2.created_at
         )
     `,
-      [ids]
+      [type, ids]
     );
 
     const rows: unknown[] = res.rows;
@@ -62,6 +67,7 @@ export class RawStatusRepository {
           x => rowType.decode(x),
           eitherUnwrap,
           x => ({
+            type: x.type,
             id: x.id,
             createdAt: x.created_at,
             raw: x.raw

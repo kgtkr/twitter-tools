@@ -14,3 +14,15 @@ export function sleep(ms: number): Promise<void> {
     setTimeout(resolve, ms);
   });
 }
+
+export function chunkOf(n: number): <T>(arr: T[]) => T[][] {
+  return <T>(arr: T[]) =>
+    arr.reduce<T[][]>((prev, x, i) => {
+      if (i % n == 0) {
+        prev.push([]);
+      }
+
+      prev[prev.length - 1].push(x);
+      return prev;
+    }, []);
+}
