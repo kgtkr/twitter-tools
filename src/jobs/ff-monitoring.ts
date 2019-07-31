@@ -12,6 +12,7 @@ import { pipe } from "fp-ts/lib/pipeable";
 import { UserCache } from "../adaptors/user-cache";
 import { Discord } from "../adaptors/discord";
 import { mkEmdedUser } from "../mk-embed-user";
+import { inspect } from "util";
 
 // tslint:disable-next-line:no-floating-promises
 (async () => {
@@ -100,7 +101,7 @@ import { mkEmdedUser } from "../mk-embed-user";
             )
           });
         } catch (e) {
-          console.log(e);
+          console.error(inspect(e));
         }
       })
     );
