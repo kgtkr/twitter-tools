@@ -5,18 +5,19 @@ export async function migrate_1563177832055_init() {
     await client.query(`
       CREATE TABLE ffs (
         id UUID NOT NULL,
-        user_id BIGINT NOT NULL,
+        user_id CHAR(32) NOT NULL,
         created_at TIMESTAMP WITH TIME ZONE NOT NULL,
-        INDEX user_id (user_id),
-        INDEX created_at (created_at),
         CONSTRAINT pk PRIMARY KEY (id)
       )
     `);
 
+    await client.query(`CREATE INDEX user_id ON ffs (user_id)`);
+    await client.query(`CREATE INDEX created_at ON ffs (created_at)`);
+
     await client.query(`
       CREATE TABLE followers (
         ff_id UUID NOT NULL,
-        user_id BIGINT NOT NULL,
+        user_id CHAR(32) NOT NULL,
         CONSTRAINT pk
           PRIMARY KEY (ff_id, user_id),
         CONSTRAINT fk_ff_id
@@ -30,7 +31,7 @@ export async function migrate_1563177832055_init() {
     await client.query(`
       CREATE TABLE friends (
         ff_id UUID NOT NULL,
-        user_id BIGINT NOT NULL,
+        user_id CHAR(32) NOT NULL,
         CONSTRAINT pk
           PRIMARY KEY (ff_id, user_id),
         CONSTRAINT fk_ff_id
@@ -48,7 +49,7 @@ export async function migrate_1563177832055_init() {
     await client.query(`
       CREATE TABLE raws (
         type raw_type NOT NULL,
-        id BIGINT NOT NULL,
+        id CHAR(32) NOT NULL,
         created_at TIMESTAMP WITH TIME ZONE NOT NULL,
         raw JSON NOT NULL,
         CONSTRAINT pk
