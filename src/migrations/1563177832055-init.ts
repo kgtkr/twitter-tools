@@ -7,20 +7,20 @@ export async function migrate_1563177832055_init() {
         id UUID NOT NULL,
         user_id CHAR(32) NOT NULL,
         created_at TIMESTAMP WITH TIME ZONE NOT NULL,
-        CONSTRAINT pk PRIMARY KEY (id)
+        CONSTRAINT pk_ffs PRIMARY KEY (id)
       )
     `);
 
-    await client.query(`CREATE INDEX user_id ON ffs (user_id)`);
-    await client.query(`CREATE INDEX created_at ON ffs (created_at)`);
+    await client.query(`CREATE INDEX idx_ffs_user_id ON ffs (user_id)`);
+    await client.query(`CREATE INDEX idx_ffs_created_at ON ffs (created_at)`);
 
     await client.query(`
       CREATE TABLE followers (
         ff_id UUID NOT NULL,
         user_id CHAR(32) NOT NULL,
-        CONSTRAINT pk
+        CONSTRAINT pk_followers
           PRIMARY KEY (ff_id, user_id),
-        CONSTRAINT fk_ff_id
+        CONSTRAINT fk_followers_ff_id
           FOREIGN KEY (ff_id)
           REFERENCES ffs (id)
           ON DELETE NO ACTION
@@ -32,9 +32,9 @@ export async function migrate_1563177832055_init() {
       CREATE TABLE friends (
         ff_id UUID NOT NULL,
         user_id CHAR(32) NOT NULL,
-        CONSTRAINT pk
+        CONSTRAINT pk_friends
           PRIMARY KEY (ff_id, user_id),
-        CONSTRAINT fk_ff_id
+        CONSTRAINT fk_friends_ff_id
           FOREIGN KEY (ff_id)
           REFERENCES ffs (id)
           ON DELETE NO ACTION
