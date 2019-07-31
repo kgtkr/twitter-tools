@@ -18,6 +18,7 @@ import { inspect } from "util";
 (async () => {
   const conf = await config();
   while (true) {
+    console.log("start");
     const now = new Date();
     await Promise.all(
       conf.ff_monitoring.tokens.map(async ({ token, discord_hook_url }) => {
@@ -107,6 +108,7 @@ import { inspect } from "util";
         }
       })
     );
+    console.log("end");
     await sleep(conf.ff_monitoring.interval * 1000);
   }
 })();
