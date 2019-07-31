@@ -2,7 +2,7 @@ import { array } from "fp-ts";
 import { FF } from "../entities/ff";
 import { transaction, psqlPool } from "../psql-pool";
 import * as t from "io-ts";
-import { DateFromISOString } from "io-ts-types/lib/DateFromISOString";
+import { date } from "io-ts-types/lib/date";
 import { pipe } from "fp-ts/lib/pipeable";
 import { eitherUnwrap } from "../utils";
 export class FFRepository {
@@ -66,7 +66,7 @@ export class FFRepository {
     const rowType = t.type({
       id: t.string,
       user_id: t.string,
-      created_at: DateFromISOString,
+      created_at: date,
       followers: t.array(t.string),
       friends: t.array(t.string)
     });
@@ -74,7 +74,7 @@ export class FFRepository {
     const res = await psqlPool().query(
       `
         SELECT
-          MAX(ffs.id) AS id,
+          ffs.id AS id,
           MAX(ffs.user_id) AS user_id,
           MAX(ffs.created_at) AS created_at,
           ARRAY_AGG(followers.user_id) AS followers,

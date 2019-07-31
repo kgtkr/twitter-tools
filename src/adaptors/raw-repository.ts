@@ -4,7 +4,7 @@ import * as t from "io-ts";
 import { pipe } from "fp-ts/lib/pipeable";
 import { array } from "fp-ts";
 import { eitherUnwrap } from "../utils";
-import { DateFromISOString } from "io-ts-types/lib/DateFromISOString";
+import { date } from "io-ts-types/lib/date";
 
 export class RawRepository {
   async insert(raw: Raw): Promise<void> {
@@ -31,7 +31,7 @@ export class RawRepository {
     const rowType = t.type({
       type: t.union([t.literal("user"), t.literal("status")]),
       id: t.string,
-      created_at: DateFromISOString,
+      created_at: date,
       raw: t.unknown
     });
 
