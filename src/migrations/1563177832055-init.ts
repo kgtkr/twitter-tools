@@ -5,7 +5,7 @@ export async function migrate_1563177832055_init() {
     await client.query(`
       CREATE TABLE ffs (
         id UUID NOT NULL,
-        user_id CHAR(32) NOT NULL,
+        user_id VARCHAR(32) NOT NULL,
         created_at TIMESTAMP WITH TIME ZONE NOT NULL,
         CONSTRAINT pk_ffs PRIMARY KEY (id)
       )
@@ -17,7 +17,7 @@ export async function migrate_1563177832055_init() {
     await client.query(`
       CREATE TABLE followers (
         ff_id UUID NOT NULL,
-        user_id CHAR(32) NOT NULL,
+        user_id VARCHAR(32) NOT NULL,
         CONSTRAINT pk_followers
           PRIMARY KEY (ff_id, user_id),
         CONSTRAINT fk_followers_ff_id
@@ -31,7 +31,7 @@ export async function migrate_1563177832055_init() {
     await client.query(`
       CREATE TABLE friends (
         ff_id UUID NOT NULL,
-        user_id CHAR(32) NOT NULL,
+        user_id VARCHAR(32) NOT NULL,
         CONSTRAINT pk_friends
           PRIMARY KEY (ff_id, user_id),
         CONSTRAINT fk_friends_ff_id
@@ -49,7 +49,7 @@ export async function migrate_1563177832055_init() {
     await client.query(`
       CREATE TABLE raws (
         type raw_type NOT NULL,
-        id CHAR(32) NOT NULL,
+        id VARCHAR(32) NOT NULL,
         created_at TIMESTAMP WITH TIME ZONE NOT NULL,
         raw JSON NOT NULL,
         CONSTRAINT pk
