@@ -45,7 +45,7 @@ export class RawRepository {
       FROM raws AS t1
       WHERE
         t1.type = $1 AND
-        t1.id = ANY($2::int[]) AND
+        t1.id = ANY($2::varchar(32)[]) AND
         NOT EXISTS (
           SELECT *
           FROM raws AS t2
