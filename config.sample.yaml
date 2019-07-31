@@ -1,9 +1,9 @@
 consumers:
-  hoge: &cs_hoge
+  - &cs_hoge
     ck: xxx
     cs: yyy
 tokens:
-  foo: &tk_foo
+  - &tk_foo
     tk: aaa
     ts: bbb
     <<: *cs_hoge
