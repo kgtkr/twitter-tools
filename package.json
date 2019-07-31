@@ -40,7 +40,6 @@
     "pg": "^7.11.0",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.7",
-    "sql-template-strings": "^2.2.2",
     "twit": "^2.2.11",
     "uuid": "^3.3.2"
   }
