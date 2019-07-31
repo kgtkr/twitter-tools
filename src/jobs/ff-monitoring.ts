@@ -10,6 +10,8 @@ import { isNone } from "fp-ts/lib/Option";
 import { eqString } from "fp-ts/lib/Eq";
 import { pipe } from "fp-ts/lib/pipeable";
 import { UserCache } from "../adaptors/user-cache";
+import { Discord } from "../adaptors/discord";
+import { mkEmdedUser } from "../mk-embed-user";
 
 // tslint:disable-next-line:no-floating-promises
 (async () => {
@@ -17,12 +19,13 @@ import { UserCache } from "../adaptors/user-cache";
   while (true) {
     const now = new Date();
     await Promise.all(
-      conf.tokens.map(async token => {
+      conf.ff_monitoring.tokens.map(async ({ token, discord_hook_url }) => {
         try {
           const ffRepo = new FFRepository();
           const rawRepo = new RawRepository();
           const twitter = new Twitter(getTwit(token));
           const userCache = new UserCache(twitter, rawRepo);
+          const discord = new Discord();
 
           const userId = await twitter.fetchAuthUserId();
 
@@ -71,6 +74,31 @@ import { UserCache } from "../adaptors/user-cache";
           );
 
           const userMap = await userCache.lookupUsers(requireUserIds, now);
+
+          await discord.postHook(discord_hook_url, {
+            content: "新しいフォロワー",
+            embeds: Array.from(welcomeFollowers).map(x =>
+              mkEmdedUser(x, userMap.get(x))
+            )
+          });
+          await discord.postHook(discord_hook_url, {
+            content: "新しいフォロー",
+            embeds: Array.from(welcomeFriends).map(x =>
+              mkEmdedUser(x, userMap.get(x))
+            )
+          });
+          await discord.postHook(discord_hook_url, {
+            content: "去ったフォロワー",
+            embeds: Array.from(byeFollowers).map(x =>
+              mkEmdedUser(x, userMap.get(x))
+            )
+          });
+          await discord.postHook(discord_hook_url, {
+            content: "去ったフォロー",
+            embeds: Array.from(byeFriends).map(x =>
+              mkEmdedUser(x, userMap.get(x))
+            )
+          });
         } catch (e) {
           console.log(e);
         }

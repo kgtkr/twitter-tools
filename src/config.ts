@@ -16,7 +16,7 @@ const configType = t.strict({
   tokens: t.array(tokenType),
   ff_monitoring: t.strict({
     interval: t.number,
-    tokens: t.array(tokenType)
+    tokens: t.array(t.strict({ discord_hook_url: t.string, token: tokenType }))
   })
 });
 
