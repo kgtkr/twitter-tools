@@ -74,32 +74,34 @@ import { inspect } from "util";
             x => union(x, byeFriends)
           );
 
-          const userMap = await userCache.lookupUsers(requireUserIds, now);
+          if (requireUserIds.size !== 0) {
+            const userMap = await userCache.lookupUsers(requireUserIds, now);
 
-          await discord.postHook(discord_hook_url, {
-            content: "新しいフォロワー",
-            embeds: Array.from(welcomeFollowers).map(x =>
-              mkEmdedUser(x, userMap.get(x))
-            )
-          });
-          await discord.postHook(discord_hook_url, {
-            content: "新しいフォロー",
-            embeds: Array.from(welcomeFriends).map(x =>
-              mkEmdedUser(x, userMap.get(x))
-            )
-          });
-          await discord.postHook(discord_hook_url, {
-            content: "去ったフォロワー",
-            embeds: Array.from(byeFollowers).map(x =>
-              mkEmdedUser(x, userMap.get(x))
-            )
-          });
-          await discord.postHook(discord_hook_url, {
-            content: "去ったフォロー",
-            embeds: Array.from(byeFriends).map(x =>
-              mkEmdedUser(x, userMap.get(x))
-            )
-          });
+            await discord.postHook(discord_hook_url, {
+              content: "新しいフォロワー",
+              embeds: Array.from(welcomeFollowers).map(x =>
+                mkEmdedUser(x, userMap.get(x))
+              )
+            });
+            await discord.postHook(discord_hook_url, {
+              content: "新しいフォロー",
+              embeds: Array.from(welcomeFriends).map(x =>
+                mkEmdedUser(x, userMap.get(x))
+              )
+            });
+            await discord.postHook(discord_hook_url, {
+              content: "去ったフォロワー",
+              embeds: Array.from(byeFollowers).map(x =>
+                mkEmdedUser(x, userMap.get(x))
+              )
+            });
+            await discord.postHook(discord_hook_url, {
+              content: "去ったフォロー",
+              embeds: Array.from(byeFriends).map(x =>
+                mkEmdedUser(x, userMap.get(x))
+              )
+            });
+          }
         } catch (e) {
           console.error(inspect(e, { depth: null }));
         }
