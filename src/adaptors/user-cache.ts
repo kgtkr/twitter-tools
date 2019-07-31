@@ -23,16 +23,14 @@ export class UserCache {
       Array.from(difference(ids, new Set(dbUsers.keys())))
     );
 
-    await Promise.all(
-      fetchedUserArr.map(async user =>
-        this.rawRepo.insert({
-          type: "user",
-          id: user.id_str,
-          createdAt: now,
-          raw: user
-        })
-      )
-    );
+    for (let user of fetchedUserArr) {
+      await this.rawRepo.insert({
+        type: "user",
+        id: user.id_str,
+        createdAt: now,
+        raw: user
+      });
+    }
 
     const fetchedUsers = new Map<string, unknown>(
       fetchedUserArr.map(x => [x.id_str, x])

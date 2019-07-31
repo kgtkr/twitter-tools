@@ -24,41 +24,37 @@ export class FFRepository {
         [ff.id, ff.userId, ff.createdAt]
       );
 
-      await Promise.all(
-        Array.from(ff.followers).map(follower => {
-          client.query(
-            `
-              INSERT INTO followers (
-                ff_id,
-                user_id
-              )
-              VALUES (
-                $1,
-                $2
-              )
-            `,
-            [ff.id, follower]
-          );
-        })
-      );
+      for (let follower of Array.from(ff.followers)) {
+        await client.query(
+          `
+            INSERT INTO followers (
+              ff_id,
+              user_id
+            )
+            VALUES (
+              $1,
+              $2
+            )
+          `,
+          [ff.id, follower]
+        );
+      }
 
-      await Promise.all(
-        Array.from(ff.friends).map(friend => {
-          client.query(
-            `
-              INSERT INTO friends (
-                ff_id,
-                user_id
-              )
-              VALUES (
-                $1,
-                $2
-              )
-            `,
-            [ff.id, friend]
-          );
-        })
-      );
+      for (let friend of Array.from(ff.friends)) {
+        await client.query(
+          `
+            INSERT INTO friends (
+              ff_id,
+              user_id
+            )
+            VALUES (
+              $1,
+              $2
+            )
+          `,
+          [ff.id, friend]
+        );
+      }
     });
   }
 
