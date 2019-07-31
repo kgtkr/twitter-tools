@@ -53,7 +53,11 @@ export class FFRepository {
             Array.from(ff.friends).map(friend => SQL`(${ff.id}, ${friend})`)
           )
         );
-        await client.query(sql.text, sql.values);
+        await Promise.all(
+          Array.from(ff.friends).map(friend => {
+            client.query(sql.text, sql.values);
+          })
+        );
       }
     });
   }
