@@ -4,7 +4,8 @@ import { transaction, psqlPool } from "../psql-pool";
 import * as t from "io-ts";
 import { date } from "io-ts-types/lib/date";
 import { pipe } from "fp-ts/lib/pipeable";
-import { eitherUnwrap } from "../utils";
+import { eitherUnwrap, joinStatements } from "../utils";
+import SQL from "sql-template-strings";
 export class FFRepository {
   async insert(ff: FF): Promise<void> {
     await transaction(async client => {
@@ -24,41 +25,40 @@ export class FFRepository {
         [ff.id, ff.userId, ff.createdAt]
       );
 
-      await Promise.all(
-        Array.from(ff.followers).map(follower => {
-          client.query(
-            `
-              INSERT INTO followers (
-                ff_id,
-                user_id
-              )
-              VALUES (
-                $1,
-                $2
-              )
-            `,
-            [ff.id, follower]
-          );
-        })
-      );
+      {
+        const sql = SQL`
+        INSERT INTO followers (
+          ff_id,
+          user_id
+        ) VALUES`.append(
+          joinStatements(
+            SQL`,`,
+            Array.from(ff.followers).map(
+              follower => SQL`(${ff.id}, ${follower})`
+            )
+          )
+        );
+        await client.query(sql.text, sql.values);
+      }
 
-      await Promise.all(
-        Array.from(ff.friends).map(friend => {
-          client.query(
-            `
-              INSERT INTO friends (
-                ff_id,
-                user_id
-              )
-              VALUES (
-                $1,
-                $2
-              )
-            `,
-            [ff.id, friend]
-          );
-        })
-      );
+      {
+        const sql = SQL`
+        INSERT INTO friends (
+          ff_id,
+          user_id
+        )
+        VALUES`.append(
+          joinStatements(
+            SQL`,`,
+            Array.from(ff.friends).map(friend => SQL`(${ff.id}, ${friend})`)
+          )
+        );
+        await Promise.all(
+          Array.from(ff.friends).map(friend => {
+            client.query(sql.text, sql.values);
+          })
+        );
+      }
     });
   }
 
