@@ -23,7 +23,8 @@ export class Twitter {
     const resType = t.type({ ids: t.array(t.string) });
     return await fetchAll(this.twit, "followers/ids", {
       user_id: userId,
-      count: 200
+      count: 200,
+      stringify_ids: true
     })
       .then(x => x.map(x => resType.decode(x)).map(eitherUnwrap))
       .then(x => array.flatten(x.map(x => x.ids)));
@@ -33,7 +34,8 @@ export class Twitter {
     const resType = t.type({ ids: t.array(t.string) });
     return await fetchAll(this.twit, "friends/ids", {
       user_id: userId,
-      count: 200
+      count: 200,
+      stringify_ids: true
     })
       .then(x => x.map(x => resType.decode(x)).map(eitherUnwrap))
       .then(x => array.flatten(x.map(x => x.ids)));

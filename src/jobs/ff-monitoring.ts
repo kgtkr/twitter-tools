@@ -101,7 +101,7 @@ import { inspect } from "util";
             )
           });
         } catch (e) {
-          console.error(inspect(e));
+          console.error(inspect(e, { depth: null }));
         }
       })
     );
