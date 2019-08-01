@@ -1,5 +1,5 @@
 import { Raw, RawType } from "../entities/raw";
-import { psqlPool } from "../psql-pool";
+import { knexClient } from "../knex-client";
 import * as t from "io-ts";
 import { pipe } from "fp-ts/lib/pipeable";
 import { array } from "fp-ts";
@@ -8,7 +8,7 @@ import { date } from "io-ts-types/lib/date";
 
 export class RawRepository {
   async insert(raw: Raw): Promise<void> {
-    await psqlPool().query(
+    await knexClient.raw(
       `
       INSERT INTO raws (
         type,
@@ -35,7 +35,7 @@ export class RawRepository {
       raw: t.unknown
     });
 
-    const res = await psqlPool().query(
+    const res = await knexClient.raw(
       `
       SELECT
         t1.type AS type,

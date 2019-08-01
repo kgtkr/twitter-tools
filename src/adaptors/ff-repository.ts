@@ -1,14 +1,14 @@
 import { array } from "fp-ts";
 import { FF } from "../entities/ff";
-import { transaction, psqlPool } from "../psql-pool";
+import { knexClient } from "../knex-client";
 import * as t from "io-ts";
 import { date } from "io-ts-types/lib/date";
 import { pipe } from "fp-ts/lib/pipeable";
 import { eitherUnwrap } from "../utils";
 export class FFRepository {
   async insert(ff: FF): Promise<void> {
-    await transaction(async client => {
-      await client.query(
+    await knexClient.transaction(async trx => {
+      await trx.raw(
         `
           INSERT INTO ffs (
             id,
@@ -25,7 +25,7 @@ export class FFRepository {
       );
 
       for (let follower of Array.from(ff.followers)) {
-        await client.query(
+        await trx.raw(
           `
             INSERT INTO followers (
               ff_id,
@@ -41,7 +41,7 @@ export class FFRepository {
       }
 
       for (let friend of Array.from(ff.friends)) {
-        await client.query(
+        await trx.raw(
           `
             INSERT INTO friends (
               ff_id,
@@ -67,7 +67,7 @@ export class FFRepository {
       friends: t.array(t.string)
     });
 
-    const res = await psqlPool().query(
+    const res = await knexClient.raw(
       `
         SELECT
           ffs.id AS id,

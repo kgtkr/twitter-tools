@@ -1,8 +1,8 @@
-import { transaction } from "../psql-pool";
+import { knexClient } from "../knex-client";
 
 export async function migrate_1563177832055_init() {
-  await transaction(async client => {
-    await client.query(`
+  await knexClient.transaction(async trx => {
+    await trx.raw(`
       CREATE TABLE ffs (
         id UUID NOT NULL,
         user_id VARCHAR(32) NOT NULL,
@@ -11,10 +11,10 @@ export async function migrate_1563177832055_init() {
       )
     `);
 
-    await client.query(`CREATE INDEX idx_ffs_user_id ON ffs (user_id)`);
-    await client.query(`CREATE INDEX idx_ffs_created_at ON ffs (created_at)`);
+    await trx.raw(`CREATE INDEX idx_ffs_user_id ON ffs (user_id)`);
+    await trx.raw(`CREATE INDEX idx_ffs_created_at ON ffs (created_at)`);
 
-    await client.query(`
+    await trx.raw(`
       CREATE TABLE followers (
         ff_id UUID NOT NULL,
         user_id VARCHAR(32) NOT NULL,
@@ -28,7 +28,7 @@ export async function migrate_1563177832055_init() {
       );
     `);
 
-    await client.query(`
+    await trx.raw(`
       CREATE TABLE friends (
         ff_id UUID NOT NULL,
         user_id VARCHAR(32) NOT NULL,
@@ -42,11 +42,11 @@ export async function migrate_1563177832055_init() {
       )
     `);
 
-    await client.query(`
+    await trx.raw(`
       CREATE TYPE raw_type AS ENUM ('user', 'status');
     `);
 
-    await client.query(`
+    await trx.raw(`
       CREATE TABLE raws (
         type raw_type NOT NULL,
         id VARCHAR(32) NOT NULL,
