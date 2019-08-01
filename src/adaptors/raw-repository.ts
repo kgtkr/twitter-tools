@@ -26,27 +26,35 @@ export class RawRepository {
       raw: t.unknown
     });
 
-    const res = await knexClient.raw(
-      `
-      SELECT
-        t1.type AS type,
-        t1.id AS id,
-        t1.created_at AS created_at,
-        t1.raw AS raw
-      FROM raws AS t1
-      WHERE
-        t1.type = $1 AND
-        t1.id = ANY($2::varchar(32)[]) AND
-        NOT EXISTS (
-          SELECT *
-          FROM raws AS t2
-          WHERE
-            t1.id = t2.id AND
-            t1.created_at < t2.created_at
-        )
-    `,
-      [type, ids]
-    );
+    const res = await knexClient
+      .select(
+        knexClient
+          .ref("type")
+          .withSchema("t1")
+          .as("type"),
+        knexClient
+          .ref("id")
+          .withSchema("t1")
+          .as("id"),
+        knexClient
+          .ref("created_at")
+          .withSchema("t1")
+          .as("created_at"),
+        knexClient
+          .ref("raw")
+          .withSchema("t1")
+          .as("raw")
+      )
+      .from(knexClient.ref("raws").as("t1"))
+      .where("t1.type", type)
+      .whereIn("t1.id", ids)
+      .whereNotExists(
+        knexClient
+          .select("*")
+          .from(knexClient.ref("raws").as("t2"))
+          .where("t1.id", "t2.id")
+          .where("t1.created_at", "<", "t2.created_at")
+      );
 
     const rows: unknown[] = res.rows;
 

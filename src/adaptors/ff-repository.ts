@@ -47,10 +47,10 @@ export class FFRepository {
         LEFT OUTER JOIN friends
           ON ffs.id = friends.ff_id
         WHERE
-          ffs.user_id = $1
+          ffs.user_id = ?
         GROUP BY ffs.id
         ORDER BY created_at
-        LIMIT $2
+        LIMIT ?
       `,
       [userId, limit]
     );
