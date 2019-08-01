@@ -50,7 +50,7 @@ export class FFRepository {
         WHERE
           ffs.user_id = ?
         GROUP BY ffs.id
-        ORDER BY created_at
+        ORDER BY created_at DESC
         LIMIT ?
       `,
         [userId, limit]
