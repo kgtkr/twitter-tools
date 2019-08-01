@@ -7,23 +7,14 @@ import { eitherUnwrap } from "../utils";
 import { date } from "io-ts-types/lib/date";
 
 export class RawRepository {
-  async insert(raw: Raw): Promise<void> {
-    await knexClient.raw(
-      `
-      INSERT INTO raws (
-        type,
-        id,
-        created_at,
-        raw
-      )
-      VALUES (
-        $1,
-        $2,
-        $3,
-        $4
-      )
-    `,
-      [raw.type, raw.id, raw.createdAt, JSON.stringify(raw.raw)]
+  async insert(raws: Raw[]): Promise<void> {
+    await knexClient("raws").insert(
+      raws.map(x => ({
+        type: x.type,
+        id: x.id,
+        created_at: x.createdAt,
+        raw: JSON.stringify(x.raw)
+      }))
     );
   }
 

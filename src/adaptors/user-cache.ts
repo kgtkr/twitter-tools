@@ -23,14 +23,14 @@ export class UserCache {
       Array.from(difference(ids, new Set(dbUsers.keys())))
     );
 
-    for (let user of fetchedUserArr) {
-      await this.rawRepo.insert({
+    await this.rawRepo.insert(
+      fetchedUserArr.map(user => ({
         type: "user",
         id: user.id_str,
         createdAt: now,
         raw: user
-      });
-    }
+      }))
+    );
 
     const fetchedUsers = new Map<string, unknown>(
       fetchedUserArr.map(x => [x.id_str, x])

@@ -8,53 +8,19 @@ import { eitherUnwrap } from "../utils";
 export class FFRepository {
   async insert(ff: FF): Promise<void> {
     await knexClient.transaction(async trx => {
-      await trx.raw(
-        `
-          INSERT INTO ffs (
-            id,
-            user_id,
-            created_at
-          )
-          VALUES (
-            $1,
-            $2,
-            $3
-          )
-        `,
-        [ff.id, ff.userId, ff.createdAt]
+      await trx("ffs").insert({
+        id: ff.id,
+        user_id: ff.userId,
+        created_at: ff.createdAt
+      });
+
+      await trx("followers").insert(
+        Array.from(ff.followers).map(x => ({ ff_id: ff.id, user_id: x }))
       );
 
-      for (let follower of Array.from(ff.followers)) {
-        await trx.raw(
-          `
-            INSERT INTO followers (
-              ff_id,
-              user_id
-            )
-            VALUES (
-              $1,
-              $2
-            )
-          `,
-          [ff.id, follower]
-        );
-      }
-
-      for (let friend of Array.from(ff.friends)) {
-        await trx.raw(
-          `
-            INSERT INTO friends (
-              ff_id,
-              user_id
-            )
-            VALUES (
-              $1,
-              $2
-            )
-          `,
-          [ff.id, friend]
-        );
-      }
+      await trx("friends").insert(
+        Array.from(ff.friends).map(x => ({ ff_id: ff.id, user_id: x }))
+      );
     });
   }
 
