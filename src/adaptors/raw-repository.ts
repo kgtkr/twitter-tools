@@ -26,7 +26,7 @@ export class RawRepository {
       raw: t.unknown
     });
 
-    const res = await knexClient
+    const rows: unknown[] = await knexClient
       .select(
         knexClient
           .ref("type")
@@ -55,8 +55,6 @@ export class RawRepository {
           .where("t1.id", "t2.id")
           .where("t1.created_at", "<", "t2.created_at")
       );
-
-    const rows: unknown[] = res.rows;
 
     return pipe(
       rows,

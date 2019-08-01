@@ -33,7 +33,7 @@ export class FFRepository {
       friends: t.array(t.string)
     });
 
-    const res = await knexClient.raw(
+    const rows: unknown[] = await knexClient.raw(
       `
         SELECT
           ffs.id AS id,
@@ -54,8 +54,6 @@ export class FFRepository {
       `,
       [userId, limit]
     );
-
-    const rows: unknown[] = res.rows;
 
     return pipe(
       rows,
