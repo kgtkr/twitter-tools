@@ -1,6 +1,6 @@
 import { Twitter } from "./twitter";
 import { RawRepository } from "./raw-repository";
-import { set, map } from "fp-ts";
+import { set } from "fp-ts";
 import { eqString } from "fp-ts/lib/Eq";
 
 export class UserCache {
