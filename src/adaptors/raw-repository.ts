@@ -59,8 +59,7 @@ export class RawRepository {
             "<",
             knexClient.ref("created_at").withSchema("t2")
           )
-      )
-      .then(x => x.rows);
+      );
 
     return pipe(
       rows,
