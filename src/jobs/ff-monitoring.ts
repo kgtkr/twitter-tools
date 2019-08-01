@@ -19,8 +19,8 @@ import { inspect } from "util";
   const conf = await config();
   while (true) {
     console.log("start");
-    const now = new Date();
     for (let { token, discord_hook_url } of conf.ff_monitoring.tokens) {
+      const now = new Date();
       try {
         const ffRepo = new FFRepository();
         const rawRepo = new RawRepository();
