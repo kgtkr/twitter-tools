@@ -54,7 +54,11 @@ export class RawRepository {
           .select("*")
           .from(knexClient.ref("raws").as("t2"))
           .where("t1.id", "t2.id")
-          .where("t1.created_at", "<", "t2.created_at")
+          .where(
+            "t1.created_at",
+            "<",
+            knexClient.ref("created_at").withSchema("t2")
+          )
       )
       .then(x => x.rows);
 
