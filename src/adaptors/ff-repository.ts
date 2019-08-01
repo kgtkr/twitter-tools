@@ -33,8 +33,9 @@ export class FFRepository {
       friends: t.array(t.string)
     });
 
-    const rows: unknown[] = await knexClient.raw(
-      `
+    const rows: unknown[] = await knexClient
+      .raw(
+        `
         SELECT
           ffs.id AS id,
           MAX(ffs.user_id) AS user_id,
@@ -52,8 +53,9 @@ export class FFRepository {
         ORDER BY created_at
         LIMIT ?
       `,
-      [userId, limit]
-    );
+        [userId, limit]
+      )
+      .then(x => x.rows);
 
     return pipe(
       rows,

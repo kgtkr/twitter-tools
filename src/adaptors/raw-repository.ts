@@ -5,6 +5,7 @@ import { pipe } from "fp-ts/lib/pipeable";
 import { array } from "fp-ts";
 import { eitherUnwrap } from "../utils";
 import { date } from "io-ts-types/lib/date";
+import { cons } from "fp-ts/lib/Array";
 
 export class RawRepository {
   async insert(raws: Raw[]): Promise<void> {
@@ -54,7 +55,8 @@ export class RawRepository {
           .from(knexClient.ref("raws").as("t2"))
           .where("t1.id", "t2.id")
           .where("t1.created_at", "<", "t2.created_at")
-      );
+      )
+      .then(x => x.rows);
 
     return pipe(
       rows,
