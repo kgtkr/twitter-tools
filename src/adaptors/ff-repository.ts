@@ -37,19 +37,14 @@ export class FFRepository {
       .raw(
         `
         SELECT
-          ffs.id AS id,
-          MAX(ffs.user_id) AS user_id,
-          MAX(ffs.created_at) AS created_at,
-          ARRAY_AGG(followers.user_id) AS followers,
-          ARRAY_AGG(friends.user_id) AS friends
+          id,
+          user_id,
+          created_at,
+          (SELECT ARRAY_AGG(user_id) FROM followers WHERE ffs.id = followers.ff_id) AS followers,
+          (SELECT ARRAY_AGG(user_id) FROM friends WHERE ffs.id = friends.ff_id) AS friends
         FROM ffs
-        LEFT OUTER JOIN followers
-          ON ffs.id = followers.ff_id
-        LEFT OUTER JOIN friends
-          ON ffs.id = friends.ff_id
         WHERE
-          ffs.user_id = ?
-        GROUP BY ffs.id
+          user_id = ?
         ORDER BY created_at DESC
         LIMIT ?
       `,
