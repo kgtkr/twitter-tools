@@ -34,23 +34,24 @@ export class FFRepository {
     });
 
     const rows: unknown[] = await knexClient
-      .raw(
-        `
-        SELECT
-          id,
-          user_id,
-          created_at,
-          (SELECT ARRAY_AGG(user_id) FROM followers WHERE ffs.id = followers.ff_id) AS followers,
-          (SELECT ARRAY_AGG(user_id) FROM friends WHERE ffs.id = friends.ff_id) AS friends
-        FROM ffs
-        WHERE
-          user_id = ?
-        ORDER BY created_at DESC
-        LIMIT ?
-      `,
-        [userId, limit]
+      .select(
+        "id",
+        "user_id",
+        "created_at",
+        knexClient
+          .select("ARRAY_AGG(user_id)")
+          .from("followers")
+          .where("ffs.id", knexClient.ref("ff_id").withSchema("followers"))
+          .as("followers"),
+        knexClient
+          .select("ARRAY_AGG(user_id)")
+          .from("friends")
+          .where("ffs.id", knexClient.ref("ff_id").withSchema("friends"))
+          .as("followers")
       )
-      .then(x => x.rows);
+      .where("user_id", userId)
+      .orderBy("created_at", "desc")
+      .limit(limit);
 
     return pipe(
       rows,
