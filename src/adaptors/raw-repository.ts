@@ -5,7 +5,6 @@ import { pipe } from "fp-ts/lib/pipeable";
 import { array } from "fp-ts";
 import { eitherUnwrap } from "../utils";
 import { date } from "io-ts-types/lib/date";
-import { cons } from "fp-ts/lib/Array";
 
 export class RawRepository {
   async insert(raws: Raw[]): Promise<void> {
