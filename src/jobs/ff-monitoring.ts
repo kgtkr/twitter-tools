@@ -22,7 +22,7 @@ import { createKnex } from "../create-knex";
   const env = eitherUnwrap(createEnv());
   const knexClient = createKnex(env);
   while (true) {
-    console.log("start");
+    console.log("job start");
     for (let { token, discord_hook_url } of conf.ff_monitoring.tokens) {
       const now = new Date();
       try {
@@ -32,6 +32,7 @@ import { createKnex } from "../create-knex";
         const userCache = new UserCache(twitter, rawRepo);
         const discord = new Discord();
 
+        console.log("fetch start");
         const userId = await twitter.fetchAuthUserId();
 
         const followers = await twitter
@@ -40,6 +41,7 @@ import { createKnex } from "../create-knex";
         const friends = await twitter
           .fetchFriends(userId)
           .then(x => new Set(x));
+        console.log("fetch end");
 
         const ff = {
           id: uuid(),
@@ -49,9 +51,13 @@ import { createKnex } from "../create-knex";
           friends
         };
 
+        console.log("save start");
         await ffRepo.insert(ff);
+        console.log("save end");
 
+        console.log("history find start");
         const ffs = await ffRepo.findUser(userId, 2);
+        console.log("history find end");
         const oFf1 = array.lookup(0, ffs);
         const oFf2 = array.lookup(1, ffs);
 
@@ -79,8 +85,11 @@ import { createKnex } from "../create-knex";
         );
 
         if (requireUserIds.size !== 0) {
+          console.log("lookupUsers start");
           const userMap = await userCache.lookupUsers(requireUserIds, now);
+          console.log("lookupUsers end");
 
+          console.log("notification start");
           await discord.postHook(discord_hook_url, {
             content: "新しいフォロワー",
             embeds: Array.from(welcomeFollowers).map(x =>
@@ -105,12 +114,13 @@ import { createKnex } from "../create-knex";
               mkEmdedUser(x, userMap.get(x))
             )
           });
+          console.log("notification end");
         }
       } catch (e) {
         console.error(inspect(e, { depth: null }));
       }
     }
-    console.log("end");
+    console.log("job end");
     await sleep(conf.ff_monitoring.interval * 1000);
   }
 })();
