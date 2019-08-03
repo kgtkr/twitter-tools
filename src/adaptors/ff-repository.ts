@@ -52,6 +52,7 @@ export class FFRepository {
           .where("ffs.id", this.knexClient.ref("ff_id").withSchema("friends"))
           .as("followers")
       )
+      .from("ffs")
       .where("user_id", userId)
       .orderBy("created_at", "desc")
       .limit(limit);
