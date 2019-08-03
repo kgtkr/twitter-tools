@@ -50,7 +50,7 @@ export class FFRepository {
           .select(this.knexClient.raw("ARRAY_AGG(user_id)"))
           .from("friends")
           .where("ffs.id", this.knexClient.ref("ff_id").withSchema("friends"))
-          .as("followers")
+          .as("friends")
       )
       .from("ffs")
       .where("user_id", userId)
