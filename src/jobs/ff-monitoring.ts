@@ -62,7 +62,7 @@ import { createKnex } from "../create-knex";
         const oFf2 = array.lookup(1, ffs);
 
         if (isNone(oFf1) || isNone(oFf2)) {
-          return;
+          continue;
         }
 
         const ff1 = oFf1.value;
