@@ -31,7 +31,7 @@ export async function migrate_1563177832055_init() {
       table.uuid("ff_id").notNullable();
       table.string("user_id", 32).notNullable();
 
-      table.primary(["ff_id", "user_id"], "pk_followers");
+      table.primary(["ff_id", "user_id"], "pk_friends");
       table
         .foreign("ff_id", "fk_friends_ff_id")
         .references("ffs.id")
