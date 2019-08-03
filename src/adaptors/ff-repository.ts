@@ -42,12 +42,12 @@ export class FFRepository {
         "user_id",
         "created_at",
         this.knexClient
-          .select("ARRAY_AGG(user_id)")
+          .select(this.knexClient.raw("ARRAY_AGG(user_id)"))
           .from("followers")
           .where("ffs.id", this.knexClient.ref("ff_id").withSchema("followers"))
           .as("followers"),
         this.knexClient
-          .select("ARRAY_AGG(user_id)")
+          .select(this.knexClient.raw("ARRAY_AGG(user_id)"))
           .from("friends")
           .where("ffs.id", this.knexClient.ref("ff_id").withSchema("friends"))
           .as("followers")
