@@ -1,14 +1,16 @@
 import { Raw, RawType } from "../entities/raw";
-import { knexClient } from "../knex-client";
 import * as t from "io-ts";
 import { pipe } from "fp-ts/lib/pipeable";
 import { array } from "fp-ts";
 import { eitherUnwrap } from "../utils";
 import { date } from "io-ts-types/lib/date";
+import Knex from "knex";
 
 export class RawRepository {
+  constructor(private knexClient: Knex<{}, unknown>) {}
+
   async insert(raws: Raw[]): Promise<void> {
-    await knexClient("raws").insert(
+    await this.knexClient("raws").insert(
       raws.map(x => ({
         type: x.type,
         id: x.id,
@@ -26,37 +28,37 @@ export class RawRepository {
       raw: t.unknown
     });
 
-    const rows: unknown[] = await knexClient
+    const rows: unknown[] = await this.knexClient
       .select(
-        knexClient
+        this.knexClient
           .ref("type")
           .withSchema("t1")
           .as("type"),
-        knexClient
+        this.knexClient
           .ref("id")
           .withSchema("t1")
           .as("id"),
-        knexClient
+        this.knexClient
           .ref("created_at")
           .withSchema("t1")
           .as("created_at"),
-        knexClient
+        this.knexClient
           .ref("raw")
           .withSchema("t1")
           .as("raw")
       )
-      .from(knexClient.ref("raws").as("t1"))
+      .from(this.knexClient.ref("raws").as("t1"))
       .where("t1.type", type)
       .whereIn("t1.id", ids)
       .whereNotExists(
-        knexClient
+        this.knexClient
           .select("*")
-          .from(knexClient.ref("raws").as("t2"))
+          .from(this.knexClient.ref("raws").as("t2"))
           .where("t1.id", "t2.id")
           .where(
             "t1.created_at",
             "<",
-            knexClient.ref("created_at").withSchema("t2")
+            this.knexClient.ref("created_at").withSchema("t2")
           )
       );
 

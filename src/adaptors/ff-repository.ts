@@ -1,13 +1,16 @@
 import { array } from "fp-ts";
 import { FF } from "../entities/ff";
-import { knexClient } from "../knex-client";
 import * as t from "io-ts";
 import { date } from "io-ts-types/lib/date";
 import { pipe } from "fp-ts/lib/pipeable";
 import { eitherUnwrap } from "../utils";
+import Knex from "knex";
+
 export class FFRepository {
+  constructor(private knexClient: Knex<{}, unknown>) {}
+
   async insert(ff: FF): Promise<void> {
-    await knexClient.transaction(async trx => {
+    await this.knexClient.transaction(async trx => {
       await trx("ffs").insert({
         id: ff.id,
         user_id: ff.userId,
@@ -33,20 +36,20 @@ export class FFRepository {
       friends: t.array(t.string)
     });
 
-    const rows: unknown[] = await knexClient
+    const rows: unknown[] = await this.knexClient
       .select(
         "id",
         "user_id",
         "created_at",
-        knexClient
+        this.knexClient
           .select("ARRAY_AGG(user_id)")
           .from("followers")
-          .where("ffs.id", knexClient.ref("ff_id").withSchema("followers"))
+          .where("ffs.id", this.knexClient.ref("ff_id").withSchema("followers"))
           .as("followers"),
-        knexClient
+        this.knexClient
           .select("ARRAY_AGG(user_id)")
           .from("friends")
-          .where("ffs.id", knexClient.ref("ff_id").withSchema("friends"))
+          .where("ffs.id", this.knexClient.ref("ff_id").withSchema("friends"))
           .as("followers")
       )
       .where("user_id", userId)

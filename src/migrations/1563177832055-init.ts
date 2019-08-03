@@ -1,6 +1,9 @@
-import { knexClient } from "../knex-client";
+import { createKnex } from "../create-knex";
+import { createEnv } from "../create-env";
+import { eitherUnwrap } from "../utils";
 
 export async function migrate_1563177832055_init() {
+  const knexClient = await createKnex(eitherUnwrap(createEnv()));
   await knexClient.transaction(async trx => {
     await trx.schema.createTable("ffs", table => {
       table.uuid("id").notNullable();

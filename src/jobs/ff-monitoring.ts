@@ -1,4 +1,4 @@
-import { sleep } from "../utils";
+import { sleep, eitherUnwrap } from "../utils";
 import { config } from "../config";
 import { Twitter } from "../adaptors/twitter";
 import { getTwit } from "../twit";
@@ -13,17 +13,21 @@ import { UserCache } from "../adaptors/user-cache";
 import { Discord } from "../adaptors/discord";
 import { mkEmdedUser } from "../mk-embed-user";
 import { inspect } from "util";
+import { createEnv } from "../create-env";
+import { createKnex } from "../create-knex";
 
 // tslint:disable-next-line:no-floating-promises
 (async () => {
   const conf = await config();
+  const env = eitherUnwrap(createEnv());
+  const knexClient = createKnex(env);
   while (true) {
     console.log("start");
     for (let { token, discord_hook_url } of conf.ff_monitoring.tokens) {
       const now = new Date();
       try {
-        const ffRepo = new FFRepository();
-        const rawRepo = new RawRepository();
+        const ffRepo = new FFRepository(knexClient);
+        const rawRepo = new RawRepository(knexClient);
         const twitter = new Twitter(getTwit(token));
         const userCache = new UserCache(twitter, rawRepo);
         const discord = new Discord();
