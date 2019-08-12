@@ -1,59 +1,51 @@
-import { transaction } from "../psql-pool";
+import { createKnex } from "../create-knex";
+import { createEnv } from "../create-env";
+import { eitherUnwrap } from "../utils";
 
 export async function migrate_1563177832055_init() {
-  await transaction(async client => {
-    await client.query(`
-      CREATE TABLE ffs (
-        id UUID NOT NULL,
-        user_id BIGINT NOT NULL,
-        created_at TIMESTAMP WITH TIME ZONE NOT NULL,
-        INDEX user_id (user_id),
-        INDEX created_at (created_at),
-        CONSTRAINT pk PRIMARY KEY (id)
-      )
-    `);
+  const knexClient = await createKnex(eitherUnwrap(createEnv()));
+  await knexClient.transaction(async trx => {
+    await trx.schema.createTable("ffs", table => {
+      table.uuid("id").notNullable();
+      table.string("user_id", 32).notNullable();
+      table.timestamp("created_at", { useTz: true }).notNullable();
 
-    await client.query(`
-      CREATE TABLE followers (
-        ff_id UUID NOT NULL,
-        user_id BIGINT NOT NULL,
-        CONSTRAINT pk
-          PRIMARY KEY (ff_id, user_id),
-        CONSTRAINT fk_ff_id
-          FOREIGN KEY (ff_id)
-          REFERENCES ffs (id)
-          ON DELETE NO ACTION
-          ON UPDATE NO ACTION
-      );
-    `);
+      table.primary(["id"], "pk_ffs");
+      table.index(["user_id"], "idx_ffs_user_id");
+      table.index(["created_at"], "idx_ffs_created_at");
+    });
 
-    await client.query(`
-      CREATE TABLE friends (
-        ff_id UUID NOT NULL,
-        user_id BIGINT NOT NULL,
-        CONSTRAINT pk
-          PRIMARY KEY (ff_id, user_id),
-        CONSTRAINT fk_ff_id
-          FOREIGN KEY (ff_id)
-          REFERENCES ffs (id)
-          ON DELETE NO ACTION
-          ON UPDATE NO ACTION
-      )
-    `);
+    await trx.schema.createTable("followers", table => {
+      table.uuid("ff_id").notNullable();
+      table.string("user_id", 32).notNullable();
 
-    await client.query(`
-      CREATE TYPE raw_type AS ENUM ('user', 'status');
-    `);
+      table.primary(["ff_id", "user_id"], "pk_followers");
+      table
+        .foreign("ff_id", "fk_followers_ff_id")
+        .references("ffs.id")
+        .onDelete("NO ACTION")
+        .onUpdate("NO ACTION");
+    });
 
-    await client.query(`
-      CREATE TABLE raws (
-        type raw_type NOT NULL,
-        id BIGINT NOT NULL,
-        created_at TIMESTAMP WITH TIME ZONE NOT NULL,
-        raw JSON NOT NULL,
-        CONSTRAINT pk
-          PRIMARY KEY (type, id, created_at)
-      )
-    `);
+    await trx.schema.createTable("friends", table => {
+      table.uuid("ff_id").notNullable();
+      table.string("user_id", 32).notNullable();
+
+      table.primary(["ff_id", "user_id"], "pk_friends");
+      table
+        .foreign("ff_id", "fk_friends_ff_id")
+        .references("ffs.id")
+        .onDelete("NO ACTION")
+        .onUpdate("NO ACTION");
+    });
+
+    await trx.schema.createTable("raws", table => {
+      table.enum("type", ["user", "status"]).notNullable();
+      table.string("id", 32).notNullable();
+      table.timestamp("created_at", { useTz: true }).notNullable();
+      table.json("raw").notNullable();
+
+      table.primary(["type", "id", "created_at"], "pk_raws");
+    });
   });
 }

@@ -1,63 +1,28 @@
 import { array } from "fp-ts";
 import { FF } from "../entities/ff";
-import { transaction, psqlPool } from "../psql-pool";
 import * as t from "io-ts";
-import { DateFromISOString } from "io-ts-types/lib/DateFromISOString";
+import { date } from "io-ts-types/lib/date";
 import { pipe } from "fp-ts/lib/pipeable";
 import { eitherUnwrap } from "../utils";
+import Knex from "knex";
+
 export class FFRepository {
+  constructor(private knexClient: Knex<{}, unknown>) {}
+
   async insert(ff: FF): Promise<void> {
-    await transaction(async client => {
-      await client.query(
-        `
-          INSERT INTO ffs (
-            id,
-            user_id,
-            created_at
-          )
-          VALUES (
-            $1,
-            $2,
-            $3
-          )
-        `,
-        [ff.id, ff.userId, ff.createdAt]
+    await this.knexClient.transaction(async trx => {
+      await trx("ffs").insert({
+        id: ff.id,
+        user_id: ff.userId,
+        created_at: ff.createdAt
+      });
+
+      await trx("followers").insert(
+        Array.from(ff.followers).map(x => ({ ff_id: ff.id, user_id: x }))
       );
 
-      await Promise.all(
-        Array.from(ff.followers).map(follower => {
-          client.query(
-            `
-              INSERT INTO followers (
-                ff_id,
-                user_id
-              )
-              VALUES (
-                $1,
-                $2
-              )
-            `,
-            [ff.id, follower]
-          );
-        })
-      );
-
-      await Promise.all(
-        Array.from(ff.friends).map(friend => {
-          client.query(
-            `
-              INSERT INTO friends (
-                ff_id,
-                user_id
-              )
-              VALUES (
-                $1,
-                $2
-              )
-            `,
-            [ff.id, friend]
-          );
-        })
+      await trx("friends").insert(
+        Array.from(ff.friends).map(x => ({ ff_id: ff.id, user_id: x }))
       );
     });
   }
@@ -66,34 +31,31 @@ export class FFRepository {
     const rowType = t.type({
       id: t.string,
       user_id: t.string,
-      created_at: DateFromISOString,
+      created_at: date,
       followers: t.array(t.string),
       friends: t.array(t.string)
     });
 
-    const res = await psqlPool().query(
-      `
-        SELECT
-          MAX(ffs.id) AS id,
-          MAX(ffs.user_id) AS user_id,
-          MAX(ffs.created_at) AS created_at,
-          ARRAY_AGG(followers.user_id) AS followers,
-          ARRAY_AGG(friends.user_id) AS friends
-        FROM ffs
-        LEFT OUTER JOIN followers
-          ON ffs.id = followers.ff_id
-        LEFT OUTER JOIN friends
-          ON ffs.id = friends.ff_id
-        WHERE
-          ffs.user_id = $1
-        GROUP BY ffs.id
-        ORDER BY created_at
-        LIMIT $2
-      `,
-      [userId, limit]
-    );
-
-    const rows: unknown[] = res.rows;
+    const rows: unknown[] = await this.knexClient
+      .select(
+        "id",
+        "user_id",
+        "created_at",
+        this.knexClient
+          .select(this.knexClient.raw("ARRAY_AGG(user_id)"))
+          .from("followers")
+          .where("ffs.id", this.knexClient.ref("ff_id").withSchema("followers"))
+          .as("followers"),
+        this.knexClient
+          .select(this.knexClient.raw("ARRAY_AGG(user_id)"))
+          .from("friends")
+          .where("ffs.id", this.knexClient.ref("ff_id").withSchema("friends"))
+          .as("friends")
+      )
+      .from("ffs")
+      .where("user_id", userId)
+      .orderBy("created_at", "desc")
+      .limit(limit);
 
     return pipe(
       rows,

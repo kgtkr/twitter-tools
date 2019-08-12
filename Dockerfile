@@ -11,4 +11,4 @@ RUN npm i
 COPY . $HOME
 
 RUN npm run build
-CMD ["npm", "start"]
+CMD while true; do sleep 30; done;

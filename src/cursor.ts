@@ -1,6 +1,7 @@
 import Twit from "twit";
 import * as t from "io-ts";
 import { isLeft, Either } from "fp-ts/lib/Either";
+import { eitherUnwrap } from "./utils";
 
 export async function fetchAll(
   twit: Twit,
@@ -9,22 +10,19 @@ export async function fetchAll(
 ): Promise<unknown[]> {
   const resType = t.type({ next_cursor_str: t.string });
   const result: unknown[] = [];
-  let cursor: string | undefined = undefined;
+  let cursor = "-1";
 
   while (true) {
-    const res: Either<t.Errors, t.TypeOf<typeof resType>> = await twit
+    const res = await twit
       .get(path, { ...params, cursor })
       .then(x => x.data)
-      .then(x => resType.decode(x));
+      .then(x => resType.decode(x))
+      .then(eitherUnwrap);
 
-    if (isLeft(res)) {
-      throw res.left;
-    }
+    result.push(res);
+    cursor = res.next_cursor_str;
 
-    result.push(res.right);
-    cursor = res.right.next_cursor_str;
-
-    if (res.right.next_cursor_str === "0") {
+    if (res.next_cursor_str === "0") {
       break;
     }
   }

@@ -1,0 +1,6 @@
+FROM node:10.15.3
+
+ENV HOME=/home/app
+WORKDIR $HOME
+
+CMD while true; do sleep 30; done;
