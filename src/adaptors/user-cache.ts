@@ -19,9 +19,13 @@ export class UserCache {
 
     const difference = set.difference(eqString);
 
-    const fetchedUserArr = await this.twitter.lookupUsers(
-      Array.from(difference(ids, new Set(dbUsers.keys())))
-    );
+    const fetchedUserArr = await this.twitter
+      .lookupUsers(Array.from(difference(ids, new Set(dbUsers.keys()))))
+      .catch<
+        ({
+          id_str: string;
+        } & object)[]
+      >(() => []);
 
     await this.rawRepo.insert(
       fetchedUserArr.map(user => ({
