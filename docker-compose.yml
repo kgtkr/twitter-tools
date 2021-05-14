@@ -1,7 +1,6 @@
 version: "3"
-
-services:
-  app:
+x-template:
+  app: &app
     build: .
     restart: always
     environment:
@@ -16,6 +15,10 @@ services:
       - psql
     volumes:
       - ./data/app:/home/app/data
+services:
+  ff-monitoring:
+    <<: *app
+    command: ./jobs/run.sh ff-monitoring
   psql:
     restart: always
     image: "postgres:10.5"
