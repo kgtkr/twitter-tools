@@ -37,10 +37,10 @@ import { createKnex } from "../create-knex";
 
         const followers = await twitter
           .fetchFollowers(userId)
-          .then(x => new Set(x));
+          .then((x) => new Set(x));
         const friends = await twitter
           .fetchFriends(userId)
-          .then(x => new Set(x));
+          .then((x) => new Set(x));
         console.log("fetch end");
 
         const ff = {
@@ -48,7 +48,7 @@ import { createKnex } from "../create-knex";
           userId,
           createdAt: now,
           followers,
-          friends
+          friends,
         };
 
         console.log("save start");
@@ -78,10 +78,10 @@ import { createKnex } from "../create-knex";
 
         const requireUserIds = pipe(
           new Set<string>(),
-          x => union(x, welcomeFollowers),
-          x => union(x, welcomeFriends),
-          x => union(x, byeFollowers),
-          x => union(x, byeFriends)
+          (x) => union(x, welcomeFollowers),
+          (x) => union(x, welcomeFriends),
+          (x) => union(x, byeFollowers),
+          (x) => union(x, byeFriends)
         );
 
         if (requireUserIds.size !== 0) {
@@ -90,30 +90,36 @@ import { createKnex } from "../create-knex";
           console.log("lookupUsers end");
 
           console.log("notification start");
-          await discord.postHook(discord_hook_url, {
-            content: "新しいフォロワー",
-            embeds: Array.from(welcomeFollowers).map(x =>
-              mkEmdedUser(x, userMap.get(x))
-            )
-          });
-          await discord.postHook(discord_hook_url, {
-            content: "新しいフォロー",
-            embeds: Array.from(welcomeFriends).map(x =>
-              mkEmdedUser(x, userMap.get(x))
-            )
-          });
-          await discord.postHook(discord_hook_url, {
-            content: "去ったフォロワー",
-            embeds: Array.from(byeFollowers).map(x =>
-              mkEmdedUser(x, userMap.get(x))
-            )
-          });
-          await discord.postHook(discord_hook_url, {
-            content: "去ったフォロー",
-            embeds: Array.from(byeFriends).map(x =>
-              mkEmdedUser(x, userMap.get(x))
-            )
-          });
+          for (const welcomeFollower of Array.from(welcomeFollowers)) {
+            await discord.postHook(discord_hook_url, {
+              content: "新しいフォロワー",
+              embeds: [
+                mkEmdedUser(welcomeFollower, userMap.get(welcomeFollower)),
+              ],
+            });
+          }
+
+          for (const welcomeFriend of Array.from(welcomeFriends)) {
+            await discord.postHook(discord_hook_url, {
+              content: "新しいフォロー",
+              embeds: [mkEmdedUser(welcomeFriend, userMap.get(welcomeFriend))],
+            });
+          }
+
+          for (const byeFollower of Array.from(byeFollowers)) {
+            await discord.postHook(discord_hook_url, {
+              content: "去ったフォロワー",
+              embeds: [mkEmdedUser(byeFollower, userMap.get(byeFollower))],
+            });
+          }
+
+          for (const byeFriend of Array.from(byeFriends)) {
+            await discord.postHook(discord_hook_url, {
+              content: "去ったフォロー",
+              embeds: [mkEmdedUser(byeFriend, userMap.get(byeFriend))],
+            });
+          }
+
           console.log("notification end");
         }
       } catch (e) {
