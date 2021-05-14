@@ -10,19 +10,19 @@ export class FFRepository {
   constructor(private knexClient: Knex<{}, unknown>) {}
 
   async insert(ff: FF): Promise<void> {
-    await this.knexClient.transaction(async trx => {
+    await this.knexClient.transaction(async (trx) => {
       await trx("ffs").insert({
         id: ff.id,
         user_id: ff.userId,
-        created_at: ff.createdAt
+        created_at: ff.createdAt,
       });
 
       await trx("followers").insert(
-        Array.from(ff.followers).map(x => ({ ff_id: ff.id, user_id: x }))
+        Array.from(ff.followers).map((x) => ({ ff_id: ff.id, user_id: x }))
       );
 
       await trx("friends").insert(
-        Array.from(ff.friends).map(x => ({ ff_id: ff.id, user_id: x }))
+        Array.from(ff.friends).map((x) => ({ ff_id: ff.id, user_id: x }))
       );
     });
   }
@@ -32,8 +32,8 @@ export class FFRepository {
       id: t.string,
       user_id: t.string,
       created_at: date,
-      followers: t.array(t.string),
-      friends: t.array(t.string)
+      followers: t.union([t.array(t.string), t.null]),
+      friends: t.union([t.array(t.string), t.null]),
     });
 
     const rows: unknown[] = await this.knexClient
@@ -59,19 +59,13 @@ export class FFRepository {
 
     return pipe(
       rows,
-      array.map(x =>
-        pipe(
-          x,
-          x => rowType.decode(x),
-          eitherUnwrap
-        )
-      ),
-      array.map(x => ({
+      array.map((x) => pipe(x, (x) => rowType.decode(x), eitherUnwrap)),
+      array.map((x) => ({
         id: x.id,
         userId: x.user_id,
         createdAt: x.created_at,
         followers: new Set(x.followers),
-        friends: new Set(x.friends)
+        friends: new Set(x.friends),
       }))
     );
   }
