@@ -18,7 +18,7 @@ x-template:
 services:
   ff-monitoring:
     <<: *app
-    command: ./jobs/run.sh ff-monitoring
+    command: ff-monitoring
   psql:
     restart: always
     image: "postgres:10.5"

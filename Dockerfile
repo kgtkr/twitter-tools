@@ -11,3 +11,5 @@ RUN npm i
 COPY . $HOME
 
 RUN npm run build
+
+ENTRYPOINT ["./jobs/run.sh"]
