@@ -1,28 +1,12 @@
-version: "3.4"
-x-template:
-  app: &app
-    build: .
-    restart: always
-    environment:
-      APP_DIR: data
-      PSQL_HOST: psql
-      PSQL_PORT: 5432
-      PSQL_DATABASE: postgres
-      PSQL_USER: postgres
-      PSQL_PASS: postgres
-      NODE_OPTIONS: --max_old_space_size=2048
-    depends_on:
-      - psql
-    volumes:
-      - ./data/app:/home/app/data
+version: "3"
+
 services:
-  ff-monitoring:
-    <<: *app
-    command: ./jobs/run.sh ff-monitoring
   psql:
     restart: always
     image: "postgres:10.5"
     environment:
       POSTGRES_PASSWORD: postgres
+    ports:
+      - 5432:5432
     volumes:
       - ./data/psql:/var/lib/postgresql/data
